@@ -120,7 +120,40 @@ class WebCrawler:
       'estacionamiento': '+5'
     }
     '''
-    pass
+    diccionarioAtributos = {}
+    res = requests.get(property_url)
+    soup = BeautifulSoup(res.content, 'html.parser')
+    section = soup.find('section', id="additional")
+    divList = section.find_all('div')
+
+    for i in divList:
+      nameAtributte = i.find("p").string
+      value = i.find("span").string
+      diccionarioAtributos[nameAtributte]=value
+
+    precio = soup.find('span', class_="rs neg_price font-weight-semibold").string
+    diccionarioAtributos["precio"]=precio
+
+    tipo = soup.find("div", class_="bg-secondary text-uppercase d-inline-block font-xsmall font-weight-bold text-white px-1").string
+    diccionarioAtributos["tipo"]=tipo
+
+    #Extracción de atributos habitaciones, baños, area
+    ulEspecifications = soup.find("ul", class_="row list-unstyled font-medium mt-4 gutter-5")
+    divsText = ulEspecifications.find_all("div", class_="text-muted")
+    j=0
+    for i in divsText:
+      j+=1
+      value = i.find("span").string
+      if j==0:
+        diccionarioAtributos["habitaciones"]=value
+      if j==1:
+        diccionarioAtributos["baños"]=value
+      if j==2:
+        diccionarioAtributos["area"]=value
+  
+  
+    return diccionarioAtributos
+    
 
 
   def group_members(self):
@@ -132,10 +165,14 @@ class WebCrawler:
       "20148004423": "Zacarias Flores Del Campo"
     }
     '''
-    pass
+    return {
+      "20191000717": "Jennebier Esther Alvarado López"
+    }
 
 
 objeto = WebCrawler()
-listaCasas=objeto.get_urls("https://www.quierocasa.hn/propiedad-en-venta-en-tegucigalpa/srp",11)
-print(listaCasas)
-print(len(listaCasas))
+#listaCasas=objeto.get_urls("https://www.quierocasa.hn/propiedad-en-venta-en-tegucigalpa/srp",11)
+#print(listaCasas)
+#print(len(listaCasas))
+prueba = objeto.get_attributes('https://www.quierocasa.hn/venta-de-casas-en-colonia-15-de-septiembre-tegucigalpa/v8gbxzk/prd')
+print(prueba)
